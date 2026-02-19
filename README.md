@@ -1,7 +1,13 @@
 # Antigravity Sprint 2 - Realtime Match Room System
 
-## 🚀 Developer 2: Arquitectura y Backend (MCP Sync)
-Este repositorio contiene la implementación crítica del **sistema de gestión de salas en tiempo real**.
+## � ¿De qué trata este proyecto?
+Este proyecto implementa una plataforma de **Salas de Juego/Espera en Tiempo Real**.
+El objetivo es permitir que múltiples usuarios se conecten simultáneamente, creen salas y se unan a ellas al instante, todo sincronizado en vivo (Realtime) sin necesidad de recargar la página.
+
+Es la base fundamental para cualquier aplicación multijugador, sistema de colas o chat en vivo, construida con React (Frontend) y Supabase (Backend).
+
+## �🚀 Developer 2: Arquitectura y Backend (MCP Sync)
+Este repositorio contiene la implementación crítica del **sistema de gestión a nivel de servidor**.
 
 A diferencia del Frontend (UI), este rol se centró en la **integridad de datos, seguridad y escalabilidad**.
 
@@ -73,6 +79,16 @@ El proyecto se entrega con el Backend totalmente funcional y probado. Para final
 *   **Acción Requerida:**
     *   Implementar un listener que detecte cuando el campo `guest_id` cambie (alguien se unió).
     *   Redirigir a ambos usuarios (Host y Guest) a la vista de juego/chat cuando el estado cambie a `active`.
+
+---
+
+## 👥 Roles del Proyecto
+
+| Rol | Estado | Responsabilidad |
+| :--- | :--- | :--- |
+| **Dev 1 (Auth)** | ✅ Listo | Login y Registro de usuarios. |
+| **Dev 2 (Backend)** | ✅ **FINALIZADO** | Arquitectura, DB, Servicios y Testing. |
+| **Dev 3 (Frontend)** | ⏳ Pendiente | Interfaz Visual (UI) y consumo de servicios. |
 
 ---
 
