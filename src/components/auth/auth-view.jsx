@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
-import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
-import './Auth.css';
+import { AuthService } from '../../services/auth-service';
+import { Mail, Lock, User, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import './auth.css';
 
 export default function Auth() {
     const [loading, setLoading] = useState(false);
     const [isSignUp, setIsSignUp] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
     const [error, setError] = useState(null);
 
     const handleAuth = async (e) => {
@@ -17,18 +18,14 @@ export default function Auth() {
 
         try {
             if (isSignUp) {
-                const { error } = await supabase.auth.signUp({
-                    email,
-                    password,
-                });
-                if (error) throw error;
+                if (!username.trim()) throw new Error('Username is required');
+
+                const result = await AuthService.signUp(email, password, username);
+                if (!result.success) throw new Error(result.error);
                 alert('Check your email for the confirmation link!');
             } else {
-                const { error } = await supabase.auth.signInWithPassword({
-                    email,
-                    password,
-                });
-                if (error) throw error;
+                const result = await AuthService.signIn(email, password);
+                if (!result.success) throw new Error(result.error);
             }
         } catch (err) {
             setError(err.description || err.message);
@@ -41,17 +38,37 @@ export default function Auth() {
         <div className="auth-container">
             <div className="auth-card">
                 <div className="auth-header">
-                    <h1>{isSignUp ? 'Join SyncRoom' : 'Welcome Back'}</h1>
-                    <p>{isSignUp ? 'Create your account to start matching' : 'Sign in to access your dashboard'}</p>
+                    <div className="logo-icon">
+                        <Sparkles size={32} color="#8b5cf6" />
+                    </div>
+                    <h1>{isSignUp ? 'Create an Account' : 'Welcome Back'}</h1>
+                    <p>{isSignUp ? 'Join the community and start matching' : 'Sign in to access your dashboard'}</p>
                 </div>
 
                 {error && <div className="error-message">{error}</div>}
 
                 <form className="auth-form" onSubmit={handleAuth}>
+                    {isSignUp && (
+                        <div className="form-group slide-in">
+                            <label htmlFor="username">Username</label>
+                            <div className="input-wrapper">
+                                <User size={18} />
+                                <input
+                                    id="username"
+                                    type="text"
+                                    placeholder="Enter your username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    required={isSignUp}
+                                />
+                            </div>
+                        </div>
+                    )}
+
                     <div className="form-group">
                         <label htmlFor="email">Email Address</label>
                         <div className="input-wrapper">
-                            <Mail />
+                            <Mail size={18} />
                             <input
                                 id="email"
                                 type="email"
@@ -66,7 +83,7 @@ export default function Auth() {
                     <div className="form-group">
                         <label htmlFor="password">Password</label>
                         <div className="input-wrapper">
-                            <Lock />
+                            <Lock size={18} />
                             <input
                                 id="password"
                                 type="password"
@@ -80,10 +97,10 @@ export default function Auth() {
 
                     <button className="auth-button" type="submit" disabled={loading}>
                         {loading ? (
-                            <span className="spinner"></span>
+                            <Loader2 className="spinner" size={20} />
                         ) : (
                             <>
-                                {isSignUp ? 'Create Account' : 'Sign In'}
+                                {isSignUp ? 'Sign Up' : 'Sign In'}
                                 <ArrowRight size={18} />
                             </>
                         )}
@@ -95,7 +112,13 @@ export default function Auth() {
                         {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
                         <button
                             className="auth-toggle"
-                            onClick={() => setIsSignUp(!isSignUp)}
+                            onClick={() => {
+                                setIsSignUp(!isSignUp);
+                                setEmail('');
+                                setPassword('');
+                                setUsername('');
+                                setError(null);
+                            }}
                         >
                             {isSignUp ? 'Sign In' : 'Sign Up'}
                         </button>

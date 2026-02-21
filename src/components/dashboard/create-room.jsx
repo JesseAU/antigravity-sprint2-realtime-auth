@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { RoomService } from '../services/RoomService';
+import { RoomService } from '../../services/room-service';
 import { Plus, Loader2 } from 'lucide-react';
 
 export default function CreateRoom({ session, onRoomCreated }) {
     const [roomName, setRoomName] = useState('');
+    const [category, setCategory] = useState('General');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    const categories = ['General', 'Gaming', 'Casual', 'Technical', 'Social'];
 
     const handleCreateRoom = async (e) => {
         e.preventDefault();
@@ -15,12 +18,13 @@ export default function CreateRoom({ session, onRoomCreated }) {
         setError(null);
 
         try {
-            const response = await RoomService.createRoom(roomName, session.user.id);
+            const response = await RoomService.createRoom(roomName, category);
             if (response.success) {
                 if (onRoomCreated) {
                     onRoomCreated(response.data);
                 }
                 setRoomName(''); // Reset form
+                setCategory('General');
             } else {
                 setError(response.error);
             }
@@ -44,6 +48,16 @@ export default function CreateRoom({ session, onRoomCreated }) {
                     disabled={loading}
                     className="room-input"
                 />
+                <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    disabled={loading}
+                    className="room-input"
+                >
+                    {categories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                </select>
                 <button type="submit" disabled={loading || !roomName.trim()} className="create-btn">
                     {loading ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
                     Create
