@@ -6,6 +6,7 @@ import { roomLogger } from '../../lib/utils/debug-logger';
 export default function Room({ room, session, onLeave }) {
     const [participants, setParticipants] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isUpdating, setIsUpdating] = useState(false);
     const isCreator = room.created_by === session.user.id;
 
     const [status, setStatus] = useState(room.status);
@@ -56,13 +57,20 @@ export default function Room({ room, session, onLeave }) {
     };
 
     const handleUpdateStatus = async (newStatus) => {
+        if (isUpdating) return;
+        setIsUpdating(true);
         try {
             const response = await RoomService.updateRoomStatus(room.id, newStatus, status);
             if (!response.success) {
-                alert(response.error);
+                // Ignore conflict errors caused by race conditions to avoid annoying alerts
+                if (response.status !== 409) {
+                    console.warn(response.error);
+                }
             }
         } catch (error) {
             console.error(`Error updating status to ${newStatus}:`, error);
+        } finally {
+            setIsUpdating(false);
         }
     };
 
@@ -132,18 +140,18 @@ export default function Room({ room, session, onLeave }) {
 
             <div className="room-actions">
                 {isCreator && status === 'waiting' && (
-                    <button onClick={() => handleUpdateStatus('ready')} className="action-btn">
-                        Set Ready
+                    <button onClick={() => handleUpdateStatus('ready')} className="action-btn" disabled={isUpdating}>
+                        {isUpdating ? 'Updating...' : 'Set Ready'}
                     </button>
                 )}
                 {isCreator && status === 'ready' && (
-                    <button onClick={() => handleUpdateStatus('playing')} className="start-btn">
-                        <Play size={18} /> Start Match
+                    <button onClick={() => handleUpdateStatus('playing')} className="start-btn" disabled={isUpdating}>
+                        <Play size={18} /> {isUpdating ? 'Starting...' : 'Start Match'}
                     </button>
                 )}
                 {isCreator && status === 'playing' && (
-                    <button onClick={() => handleUpdateStatus('finished')} className="end-btn">
-                        Finish Match
+                    <button onClick={() => handleUpdateStatus('finished')} className="end-btn" disabled={isUpdating}>
+                        {isUpdating ? 'Finishing...' : 'Finish Match'}
                     </button>
                 )}
 

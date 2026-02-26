@@ -1,4 +1,4 @@
-# SyncRoom: Realtime Match Room System 🚀
+que p# SyncRoom: Realtime Match Room System 🚀
 
 **Sprint 2 - Professional Edition**
 
@@ -47,7 +47,27 @@ src/
 
 ---
 
-## 🛠️ 3. Manejo de Casos de Borde (Edge Cases)
+## 3. Sincronización en Tiempo Real y Estado
+
+- **Arquitectura de Sincronización**: Uso de canales dedicados (`room_details_[ID]` y `room_participants_[ID]`) para mantener el estado sincronizado sin refrescar la página.
+- **Reference Counting**: Implementado en `src/services/room-service.js` para gestionar mútiples suscripciones a un mismo canal, evitando memory leaks y conexiones fantasma.
+- **Transiciones de Estado Seguras**: Los cambios de estado de la sala (`waiting` -> `ready` -> `playing` -> `finished`) son validados estrictamente en Edge Functions para prevenir *Race Conditions* e inconsistencias.
+
+## 🛠️ Debugging Guiado y Manejo de Errores
+
+Durante el Sprint 2, realizamos una serie de simulaciones exhaustivas para garantizar la resiliencia de la plataforma. Todo el proceso está meticulosamente documentado en nuestro **Reporte Técnico de Debugging**:
+
+👉 **[Ver Reporte Completo de Debugging Guiado](docs/DEBUGGING_REPORT.md)**
+
+**Hitos clave logrados y documentados en el reporte:**
+1. **Sistema de Logging Profesional (`debugLogger`)**: Implementación de niveles de logs (INFO, WARN, ERROR, DEBUG) con trazabilidad de red y renderizado para auditoría técnica.
+2. **Prevención de Data Races (Condiciones de Carrera)**: Solución del critical bug del "doble clic" agresivo (Error 400 mitigado a un 409 Conflict manejado silenciosamente por UI).
+3. **Resiliencia ante Desconexiones**: Manejo seguro del estado de suscripciones (`SUPABASE_REALTIME_SUBSCRIPTION_ERROR`) y reconexión de hosts.
+4. **Boundary Catcher**: Simulación de errores de React (Unexpected Application Error) mitigados con notificaciones graceful en contexto de usuario.
+
+---
+
+## 4. UI / UX y Componentes Reutilizables
 
 El sistema ha sido "blindado" contra situaciones inesperadas:
 
@@ -60,7 +80,7 @@ El sistema ha sido "blindado" contra situaciones inesperadas:
 
 ---
 
-## 🧪 4. Sistema de Simulación y Debugging
+## 5. Sistema de Simulación y Debugging
 
 Para garantizar la calidad, se incluyeron herramientas de simulación de fallos:
 - **`simulateNetworkFailure`**: Fuerza una desconexión para probar la resiliencia de la UI.
